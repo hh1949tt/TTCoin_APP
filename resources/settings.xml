@@ -1,0 +1,46 @@
+<settings>
+    <!--
+        Garmin Connect 手机端自动生成勾选界面。
+        显示顺序（排序）只在手表端菜单里调，这里不暴露。
+        propertyKey 的 @Properties. 前缀后必须与 properties.xml 的 id 完全一致。
+    -->
+    <setting title="行情接口地址" propertyKey="@Properties.apiUrl">
+        <settingConfig
+            type="alphaNumeric"
+            maxLength="200"
+            errorMessage="@Strings.ApiUrlInvalid"/>
+    </setting>
+    <setting title="显示 BTC" propertyKey="@Properties.enabledBTC">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 ETH" propertyKey="@Properties.enabledETH">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 DOGE" propertyKey="@Properties.enabledDOGE">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 SHIB" propertyKey="@Properties.enabledSHIB">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 SOL" propertyKey="@Properties.enabledSOL">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 BNB" propertyKey="@Properties.enabledBNB">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 XRP" propertyKey="@Properties.enabledXRP">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 ADA" propertyKey="@Properties.enabledADA">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 LINK" propertyKey="@Properties.enabledLINK">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 LTC" propertyKey="@Properties.enabledLTC">
+        <settingConfig type="boolean"/>
+    </setting>
+    <setting title="显示 AVAX" propertyKey="@Properties.enabledAVAX">
+        <settingConfig type="boolean"/>
+    </setting>
+</settings>

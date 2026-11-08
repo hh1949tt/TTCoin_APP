@@ -1,0 +1,21 @@
+<strings>
+    <!-- ============================================================
+         简体中文（resources-zhs）—— 国行 / 中文固件（带 Noto Sans SC）加载这一份。
+         设备的系统语言是 zhs 时自动命中；其它语言回落到 resources/ 的英文。
+         id 必须与 resources/strings/strings.xml 完全对应，缺哪个就回落成英文。
+         ============================================================ -->
+
+    <string id="AppName">TTCoin</string>
+    <string id="ApiUrlInvalid">必须是 https:// 开头的完整接口地址</string>
+
+    <string id="MenuCoins">选择币种</string>
+    <string id="MenuCoinsDesc">设置显示哪些交易对</string>
+    <string id="MenuSort">排序币种</string>
+    <string id="MenuSortDesc">调整显示顺序</string>
+    <string id="MenuSortList">排序（当前顺序）</string>
+    <!-- 原来写的是"上移 ↑"/"下移 ↓"，但 Garmin 内建字体没有 ↑↓ 这两个字符
+         （U+2191/U+2193），运行时会被画成空心菱形，两个条目看起来一样。
+         菜单只能画文字、没法像行情箭头那样 fillPolygon，所以直接去掉箭头。 -->
+    <string id="MenuMoveUp">上移</string>
+    <string id="MenuMoveDown">下移</string>
+</strings>

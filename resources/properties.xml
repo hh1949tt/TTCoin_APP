@@ -1,0 +1,41 @@
+<resources>
+    <!--
+        每个候选币种一个布尔项：手机端 Garmin Connect 的应用设置界面
+        与手表菜单写的是同一批键，两边实时同步。
+
+        "默认显示前 3 个"不是靠这里的值实现的，而是按**接口顺序**算出来的
+        （见 TTCoinView.isCoinEnabled / selectionUntouched）：这里的初始值
+        只作为"用户是否动过设置"的比对基准（BUILTIN_ON = BTC/ETH/DOGE）。
+        只要有一项被改过，之后完全以属性和菜单里的勾选为准。
+
+        新增候选币种时：这里 + settings.xml + TTCoinView.COINS 兜底表
+        + api/lib.php 的 ttcoin_symbols() 四处同步。
+        真正常态是接口说了算：服务端加币种，表上的菜单会自动多出来。
+
+        注意：settings.xml 里的 propertyKey 必须写 @Properties.<id>，
+        编译器把 @Properties. 之后的内容与这里的 id 严格匹配，
+        不需要也不支持 Persisted. 前缀。
+    -->
+    <properties>
+        <!--
+            行情接口地址。手机端 Garmin Connect 的应用设置里可改；
+            必须是 https:// 开头，客户端校验不通过时回退内置默认值
+            （TTCoinView.DEFAULT_API）。改接口格式约定见 https://github.com/hh1949tt/TTCoin_API/blob/main/lib.php 头部注释。
+
+            ⚠️ 这里的值优先级高于 DEFAULT_API（见 TTCoinView.apiEndpoint），
+            改地址时两处要一起改——只改 DEFAULT_API 不生效，APP 仍会用这里的旧值。
+        -->
+        <property id="apiUrl" type="string">https://api.example.com/ttcoin/api/coin.php</property>
+        <property id="enabledBTC"  type="boolean">true</property>
+        <property id="enabledETH"  type="boolean">true</property>
+        <property id="enabledDOGE" type="boolean">true</property>
+        <property id="enabledSHIB" type="boolean">false</property>
+        <property id="enabledSOL"  type="boolean">false</property>
+        <property id="enabledBNB"  type="boolean">false</property>
+        <property id="enabledXRP"  type="boolean">false</property>
+        <property id="enabledADA"  type="boolean">false</property>
+        <property id="enabledLINK" type="boolean">false</property>
+        <property id="enabledLTC"  type="boolean">false</property>
+        <property id="enabledAVAX" type="boolean">false</property>
+    </properties>
+</resources>

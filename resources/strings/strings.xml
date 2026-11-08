@@ -1,0 +1,23 @@
+<strings>
+    <!-- ============================================================
+         基础语言（英文）—— 所有未提供翻译的语言都会落到这里。
+         国际版固件（如 Instinct 2X 006-B4394-00）只有 Roboto 字形，
+         显示中文会变成方块，所以这里的文案必须是纯 ASCII。
+
+         中文文案在 resources-zhs/strings/strings.xml，两边 id 必须一一对应；
+         代码里一律用 TTCoinText.get(Rez.Strings.Xxx, "兜底") 取。
+         ============================================================ -->
+
+    <string id="AppName">TTCoin</string>
+    <string id="ApiUrlInvalid">Must be a full https:// API URL</string>
+
+    <!-- 设置菜单：Start 键呼出 -->
+    <string id="MenuCoins">Coins</string>
+    <string id="MenuCoinsDesc">Choose pairs</string>
+    <string id="MenuSort">Reorder</string>
+    <string id="MenuSortDesc">Change order</string>
+    <string id="MenuSortList">Current order</string>
+    <!-- 不要用 ↑ / ↓：Garmin 内建字体没有这两个字符，会画成空心菱形 ◇ -->
+    <string id="MenuMoveUp">Move Up</string>
+    <string id="MenuMoveDown">Move Down</string>
+</strings>
