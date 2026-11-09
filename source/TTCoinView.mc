@@ -73,6 +73,11 @@ class TTCoinView extends WatchUi.View {
     const TITLE_Y = 26;         // 副标题 cell 顶部（字面约落在 31..44）
     const PAGE_DY = 18;         // 页码行相对副标题 cell 的下移量（字面 50..62，与标题留 4px）
 
+    // 时钟：画在副标题正上方，与它共用同一条垂直轴（TITLE_CX）。
+    // 这里用 FONT_TINY 而不是 FONT_SMALL：副标题从 y=26 起排，上面只剩 26px，
+    // FONT_SMALL 的字高约 21px，一放就把左上角的八边形斜边（x+y=39.6）蹭掉一笔。
+    const CLOCK_Y = 8;          // 时钟 cell 顶部（字面约 12..24，与副标题留 2px）
+
     // 灯孔里放 TT 标（实测：灯孔内部是可绘的，只有那圈 6px 宽的金属环盖住屏幕）
     const BADGE_CX = 144;
     const BADGE_CY = 31;
@@ -103,6 +108,8 @@ class TTCoinView extends WatchUi.View {
     const REQUEST_TIMEOUT_MS = 45000;
 
     var timer as Timer.Timer?;
+    var clockTimer as Timer.Timer?;             // 走时用，1 秒一拍
+    var lastMinute as Lang.Number = -1;         // 上次画出来的"分钟序号"，相同就不重绘
     var marketData as Lang.Array? = null;
     var state as Lang.Number = STATE_LOADING;
     var subtitle as Lang.String = "- Coin -";   // 副标题：区分实时 / 缓存 / 离线
@@ -158,12 +165,14 @@ class TTCoinView extends WatchUi.View {
     // 在这里接管"起定时器 + 拉数据"，比放在 initialize 更符合组件语义
     function onShow() as Void {
         startTimer();
+        startClock();
         fetchPrice();
     }
 
     // 离开时必须停掉定时器，否则反复进出会堆积多个 Timer 实例
     function onHide() as Void {
         stopTimer();
+        stopClock();
     }
 
     // 一条行情对应的"币种简称"：优先 base（服务端给的原始简称，如 SHIB），
@@ -424,6 +433,18 @@ class TTCoinView extends WatchUi.View {
 
         // 灯孔里的 TT 标跟数据无关，先画，保证任何状态下都在
         drawBadge(dc);
+
+        // 时钟同理：与副标题共轴、画在它上方，Loading / No Net 时也照样走时
+        dc.drawText(
+            dc.getWidth() * TITLE_CX / REF_WIDTH,
+            dc.getHeight() * CLOCK_Y / REF_HEIGHT,
+            Graphics.FONT_TINY,
+            clockText(),
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
+
+        // 记下这一帧画的是哪一分钟，走时定时器据此判断要不要重绘
+        lastMinute = minuteKey();
 
         var blocks = buildBlocks();
 
@@ -887,6 +908,53 @@ class TTCoinView extends WatchUi.View {
 
             WatchUi.requestUpdate();
         }
+    }
+
+    // ---------------- 走时 ----------------
+
+    // 1 秒一拍，但**只有分钟变了才重绘**。界面只显示 HH:MM，秒数不画，
+    // 每分钟一次 requestUpdate 对电量几乎没有影响；而如果靠行情那个 8 秒
+    // 定时器顺带刷新，分钟跳变最多要晚 8 秒才看得见。
+    function startClock() as Void {
+        if (clockTimer != null) {
+            return;
+        }
+        clockTimer = new Timer.Timer();
+        clockTimer.start(method(:onClockTimer), 1000, true);
+    }
+
+    function stopClock() as Void {
+        if (clockTimer != null) {
+            clockTimer.stop();
+            clockTimer = null;
+        }
+    }
+
+    function onClockTimer() as Void {
+        // 换分钟了才请求重绘；onUpdate 画完会把 lastMinute 更新成本帧的分钟
+        if (minuteKey() != lastMinute) {
+            WatchUi.requestUpdate();
+        }
+    }
+
+    // "距零点多少分钟"，只用来比较是否换分钟，不参与显示
+    function minuteKey() as Lang.Number {
+        var clock = System.getClockTime();
+        return clock.hour * 60 + clock.min;
+    }
+
+    // 固定 24 小时制、两位补零：宽度恒定，不会因为 "9:05" / "10:05" 抖动
+    function clockText() as Lang.String {
+
+        var clock = System.getClockTime();
+
+        var hh = clock.hour;
+        var mm = clock.min;
+
+        var hs = hh < 10 ? "0" + hh.toString() : hh.toString();
+        var ms = mm < 10 ? "0" + mm.toString() : mm.toString();
+
+        return hs + ":" + ms;
     }
 
     // ---------------- 网络 ----------------

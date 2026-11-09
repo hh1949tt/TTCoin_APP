@@ -4,7 +4,7 @@
 
 | 项目 | 版本 | 发布日期 | 应用 id | 发布形态 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| TTCoin_APP | **1.0.2** | 2026-11-08 | `1d087cf1-27ae-4c64-a653-42e113497d07` | 侧载 `.prg` / Beta / Connect IQ Store（Apps 分类） | **构建通过 · 模拟器验收通过（英文）· 中文待真机** |
+| TTCoin_APP | **1.0.3** | 2026-11-09 | `1d087cf1-27ae-4c64-a653-42e113497d07` | 侧载 `.prg` / Beta / Connect IQ Store（Apps 分类） | **构建通过 · 模拟器验收通过（英文）· 中文待真机** |
 
 前置依赖：`TTCoin_API` 已上线（第 6 节第 1 步会先验服务端）。
 
@@ -14,7 +14,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| 版本 | 1.0.2 |
+| 版本 | 1.0.3（1.0.2 许可证改为 PolyForm Noncommercial；**1.0.3 主界面新增顶部时钟**） |
 | 类型 | `watch-app`（应用列表入口，不是小工具） |
 | 手表上的名字 | **TTCoin**（`resources/strings/strings.xml`） |
 | 入口类 | `TTCoinApp`（`AppBase.getInitialView()` → `[TTCoinView, TTCoinDelegate]`） |
@@ -205,3 +205,4 @@ EOF
 | 2026-11-08 | 1.0.0 | 默认顺序与默认前 3 项改为跟随接口；移除表端改接口地址；失败重试编译期默认地址；状态栏显示响应码；45s 看门狗；app id 与 Widget 分离 |
 | 2026-11-08 | 1.0.1 | 菜单文案全部移入资源表，新增 `resources-zhs/` 简体中文与 `TTCoinText` 取用入口，`manifest` 声明 `eng` + `zhs`；「上移 ↑ / 下移 ↓」去掉箭头字符（内建字体缺字）；`settings.xml` 的 `ApiUrlInvalid` 补英文 |
 | 2026-11-08 | 1.0.2 | 许可证由 MIT 改为 **PolyForm Noncommercial License 1.0.0**：仅限非商业用途，商用须另行取得书面授权；`LICENSE` 重写并附 `Required Notice`，README 增补「可以 / 不可以」对照；**无代码与资源改动，`.prg` 无需重编** |
+| 2026-11-09 | 1.0.3 | 副标题上方新增当前时间（24 小时制，如 `14:25`），与 `- Coin -` 同轴居中；走时用独立 1 秒定时器，**只在换分钟时 `requestUpdate`**，`onHide` 停表；版式取 `CLOCK_Y=8` + `FONT_TINY`，避免蹭到左上角八边形斜边（`x+y=39.6`） |
