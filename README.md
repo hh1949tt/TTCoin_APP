@@ -254,7 +254,7 @@ monkeydo bin/TTCoin.prg instinct2x
 | `update_price.php` | cron 预热脚本 |
 | `lib.php` | 抓取 / 校验 / 缓存 / 请求日志（共用依赖） |
 
-手表调用的接口约定（`?uid=` / `?type=` 参数、请求日志格式、小数位规则、502 降级行为）全部移至 [`../TTCoin_API/README.md`](https://github.com/hh1949tt/TTCoin_API/blob/main/README.md)，请到那边查阅。后端部署（上传、缓存/日志目录、cron 预热、安全建议）也在同一份文档里。
+手表调用的接口约定（`?id=` / `?type=` 参数、请求日志格式、小数位规则、502 降级行为）全部移至 [`../TTCoin_API/README.md`](https://github.com/hh1949tt/TTCoin_API/blob/main/README.md)，请到那边查阅。后端部署（上传、缓存/日志目录、cron 预热、安全建议）也在同一份文档里。
 
 ## 自定义配置
 
