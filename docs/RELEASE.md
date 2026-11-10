@@ -23,7 +23,7 @@
 | 权限 | `Communications` |
 | 语言 | `eng` + `zhs`（基础语言英文在 `resources/`，中文在 `resources-zhs/`，见 §2.1） |
 | 产物 | `bin/TTCoin_APP.prg`（112,828 字节，2026-11-08 12:16 构建） |
-| 服务端 | `https://api.example.com/ttcoin/api/coin.php` |
+| 服务端 | `https://your-domain.example/coin.php` |
 
 > Connect IQ 的 `manifest.xml` 里**没有版本字段**——商店版本号在开发者后台按次填写；侧载安装不带版本元数据。所以版本只存在于本文档与产物归档名（建议 `TTCoin_APP-1.0.0.prg`）。
 
@@ -79,7 +79,7 @@
 ```bash
 # SDK 9.2.0；-y 必须给开发者密钥，否则只能出模拟器包
 monkeyc.bat -f monkey.jungle -o bin/TTCoin_APP.prg \
-  -y <path-to-developer_key> \
+  -y path/to/developer_key \
   -d instinct2x -w -l 2
 ```
 

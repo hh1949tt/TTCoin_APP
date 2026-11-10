@@ -1,6 +1,10 @@
+> **说明**：本文是发布前的代码评审存档，记录的是**当时**的代码状态与结论。
+> 发布版已把默认接口地址改为占位符 `https://your-domain.example/coin.php`（属性 `apiUrl`，手机端可改），
+> 因此文中「私人域名硬编码」一项已关闭；其余条目的取舍思路仍然适用。
+
 # 代码审查与发布前 Checklist
 
-> 📁 **路径说明**：本文写作时服务端代码还在本仓库 `api/` 目录下；现已整体迁至同级独立目录 **`https://github.com/hh1949tt/TTCoin_API`**。文中出现的 `api/xxx.php` 一律对应现在的 `https://github.com/hh1949tt/TTCoin_API`，内容不再重复修订。
+> 📁 **路径说明**：本文写作时服务端代码还在本仓库 `api/` 目录下；现已整体迁至同级独立目录 **`TTCoin_API`**。文中出现的 `api/xxx.php` 一律对应现在的 `../TTCoin_API/xxx.php`，内容不再重复修订。
 
 
 审查对象：`TTCoin` 全部源码（Monkey C + PHP）。
@@ -10,7 +14,7 @@
 
 | # | 位置 | 问题 | 严重度 |
 | --- | --- | --- | --- |
-| 1 | `TTCoinView.mc:10` | 硬编码接口域名（发布版已改为占位地址） | 🔴 高 |
+| 1 | `TTCoinView.mc:10` | 硬编码作者私人接口域名 | 🔴 高 |
 | 2 | `TTCoinView.mc:193-227` | `onReceive` 类型标注与实际 Array 数据不符 | ✅ 已修复 |
 | 3 | 仓库根目录 | 缺少 `README` / `.gitignore` / `LICENSE` | ✅ 已修复 |
 | 4 | `TTCoinView.mc:107-141` | 硬编码数组索引，返回条数不足即崩溃 | ✅ 已修复 |
@@ -34,14 +38,14 @@
 
 ```monkey-c
 // TTCoinView.mc:10
-const PRICE_API = "https://api.example.com/coin.php";
+const PRICE_API = "https://your-domain.example/coin.php";
 ```
 
 公开仓库后，任何人下载代码都会打到你的服务器上：带宽、流量、被滥用的风险都由你承担，而对方一旦断网或你的域名过期，会认为"这个插件是坏的"。
 
 **建议**
 
-- 地址挪进**属性系统**（`resources/properties.xml` 的 `apiUrl`，默认值是占位地址），并暴露到手机端 Garmin Connect 的应用设置里——用户不改代码、不重新编译，填自己的地址即可。客户端 `apiEndpoint()` 现读现用：不是 `https://` 开头或为空时回退编译期默认值 `DEFAULT_API`，避免把非法配置原样发出去。
+- 地址挪进**属性系统**（`resources/properties.xml` 的 `apiUrl`，默认值仍是作者地址），并暴露到手机端 Garmin Connect 的应用设置里——用户不改代码、不重新编译，填自己的地址即可。客户端 `apiEndpoint()` 现读现用：不是 `https://` 开头或为空时回退编译期默认值 `DEFAULT_API`，避免把非法配置原样发出去。
 - README 中显著标注"必须自建后端"（已完成）。
 - 若确实想提供公共服务，单独在 Issue 中说明可用性无承诺，不要写死在代码里。
 
@@ -484,7 +488,7 @@ git add .
 git status          # ← 先看这里，确认没有敏感文件
 git commit -m "feat: TTCoin widget for Garmin Instinct 2X"
 git branch -M main
-git remote add origin https://github.com/<your-name>/TTCoin.git
+git remote add origin https://github.com/hh1949tt/TTCoin_APP.git
 git push -u origin main
 ```
 
@@ -805,7 +809,7 @@ makeWebRequest 会把参数字典编成 query string，最终请求 `GET /coin.p
 ### 验证
 
 ```bash
-curl -s 'https://your-domain.com/coin.php?uid=test123' > /dev/null
+curl -s 'https://your-domain.example/coin.php?uid=test123' > /dev/null
 tail -1 ../logs/coin.log
 # 2026-11-08 07:05:49  test123  203.0.113.7  fresh
 ```
@@ -1029,13 +1033,13 @@ function ttcoin_filter_output($json, $type) { ... }   // 只裁出口，不动�
 
 ### 现象
 
-服务端迁到 `https://api.example.com/ttcoin/api/coin.php` 后，把 `properties.xml` 与 `DEFAULT_API` 都改了、重新编译、重新侧载，表上仍然是 `- Offline -`（有旧缓存时），底部价格是上一次成功抓到的旧值。
+服务端迁到 `https://your-domain.example/coin.php` 后，把 `properties.xml` 与 `DEFAULT_API` 都改了、重新编译、重新侧载，表上仍然是 `- Offline -`（有旧缓存时），底部价格是上一次成功抓到的旧值。
 
 ### 服务端先排除
 
 ```bash
 curl -s -o /tmp/b -w "%{http_code} %{size_download}B %{time_total}s\n" \
-  "https://api.example.com/ttcoin/api/coin.php?uid=t&type=app"
+  "https://your-domain.example/coin.php?uid=t&type=app"
 # 200 726B   -> 返回 11 项合法 JSON，无 BOM、无前导空白、字段齐全
 ```
 
@@ -1089,7 +1093,7 @@ curl -s -o /tmp/b -w "%{http_code} %{size_download}B %{time_total}s\n" \
 ```bash
 for i in 1 2 3; do curl -s -o /dev/null -w \
   "code=%{http_code} tls=%{time_appconnect}s first=%{time_starttransfer}s total=%{time_total}s\n" \
-  "https://api.example.com/ttcoin/api/coin.php?uid=lat$i&type=app"; done
+  "https://your-domain.example/coin.php?uid=lat$i&type=app"; done
 ```
 
 ```
@@ -1122,7 +1126,7 @@ code=200 tls=0.55s first=30.76s total=30.76s
 
 ### 遗留
 
-Cloudflare 到国内的线路本身也在抖（tls 0.5s ~ 4.2s）。若仍偏慢，可考虑给 `ba-api-home` 这个子域名关掉 CF 代理（DNS only）直连源站，或用 cron 每 10 秒预热让缓存始终新鲜。
+Cloudflare 到国内的线路本身也在抖（tls 0.5s ~ 4.2s）。若仍偏慢，可考虑给 API 子域名关掉 CF 代理（DNS only）直连源站，或用 cron 每 10 秒预热让缓存始终新鲜。
 
 ## 十九、菜单文案双语资源化：把"硬编码中文"换成资源限定符
 

@@ -10,6 +10,7 @@
 
     <string id="AppName">TTCoin</string>
     <string id="ApiUrlInvalid">Must be a full https:// API URL</string>
+    <string id="FaceIdInvalid">Letters and digits only, up to 32 characters</string>
 
     <!-- 设置菜单：Start 键呼出 -->
     <string id="MenuCoins">Coins</string>

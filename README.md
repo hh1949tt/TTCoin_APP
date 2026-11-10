@@ -14,6 +14,29 @@
 
 ![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)
 
+![截图](screenshots/app-main.png)
+
+上方就是手表上的实际画面（176×176 原图，未做任何修饰）：顶部时间与页号，
+下面是 BTC / ETH 的价格与 24h 涨跌幅，向下翻页看其余已勾选的币种。
+
+> **装上表之前**：接口地址默认是占位地址 `https://your-domain.example/coin.php`。
+> 先用 [`TTCoin_API`](https://github.com/hh1949tt/TTCoin_API/blob/main/README.md) 部署自己的中转接口，再按
+> [配置接口地址](#2-配置接口地址) 改成你自己的地址，否则只会显示 `- Offline -`。
+>
+> **许可**：PolyForm Noncommercial 1.0.0 —— **仅限非商业用途**，详见 [LICENSE](LICENSE)。
+
+### 四个仓库
+
+| 形态 | 仓库 |
+| --- | --- |
+| 表盘（Watch Face） | <https://github.com/hh1949tt/TTCoin_WF> |
+| Watch App | <https://github.com/hh1949tt/TTCoin_APP> |
+| Widget | <https://github.com/hh1949tt/TTCoin_Widget> |
+| 服务端中转 | <https://github.com/hh1949tt/TTCoin_API> |
+
+三个表端项目共用同一套接口约定（`[{symbol,base,price,change}]`），
+服务端可任选 PHP 或 Cloudflare Worker 版。
+
 ```
         TT
       - Coin -
@@ -59,7 +82,7 @@
 1. Garmin 设备端只支持 HTTPS + 标准 JSON，自己中转一层可以把 Binance 的原始响应裁剪成极小的 3 条记录（约 100 字节），省电省流量；
 2. 手表端 TLS 握手机制、DNS 和证书链对目标站点的兼容性有限，中转层可以把不稳定性挡在服务端。
 
-> ⚠️ **重要**：仓库里的默认接口地址是占位符 `https://api.example.com/...`，**直接装上不会有数据**。请按 [TTCoin_API 的 README](https://github.com/hh1949tt/TTCoin_API#readme) 的部署说明自建一份，然后改 `resources/properties.xml` 的 `apiUrl` 重新编译。
+> ⚠️ **重要**：仓库里的默认接口地址是占位符 `https://your-domain.example/coin.php`，直接装上是拿不到行情的。请按 [`../TTCoin_API/README.md`](https://github.com/hh1949tt/TTCoin_API/blob/main/README.md) 部署自己的中转接口，再改 `resources/properties.xml` 的 `apiUrl`（或在手机端设置里填）后重新编译。
 
 ## 功能特性
 
@@ -115,7 +138,7 @@ sequenceDiagram
 | ---------------------- | ----------------------------------------------- |
 | `source/TTCoinApp.mc`  | `AppBase` 入口，`getInitialView()` 返回 `TTCoinView` |
 | `source/TTCoinView.mc` | 全部业务：发请求、本地缓存、状态机、定时器、绘制                        |
-| `https://github.com/hh1949tt/TTCoin_API/blob/main/coin.php` | 手表调用的主接口，带缓存与降级（服务端独立目录）                 |
+| `../TTCoin_API/coin.php` | 手表调用的主接口，带缓存与降级（服务端独立目录）                 |
 
 ## 目录结构
 
@@ -157,7 +180,7 @@ TTCoin/
 - [Visual Studio Code](https://code.visualstudio.com/) + 官方扩展 **Monkey C**
 - 一个 Garmin 开发者签名密钥（`.der`），用于真机安装
 
-**服务端**（详见 [TTCoin_API 的 README](https://github.com/hh1949tt/TTCoin_API#readme)）
+**服务端**（详见 [`../TTCoin_API/README.md`](https://github.com/hh1949tt/TTCoin_API/blob/main/README.md)）
 
 - PHP 7.4+，启用 `curl` 与 `json` 扩展；任意支持 HTTPS 的 Web 服务器
 
@@ -166,7 +189,7 @@ TTCoin/
 ### 1. 克隆并打开
 
 ```bash
-git clone https://github.com/<your-name>/TTCoin.git
+git clone https://github.com/hh1949tt/TTCoin_APP.git
 cd TTCoin
 code .
 ```
@@ -178,7 +201,7 @@ code .
 **① 改编译默认值（侧载安装必用）**：编辑 `resources/properties.xml` 后重新编译：
 
 ```xml
-<property id="apiUrl" type="string">https://your-domain.com/coin.php</property>
+<property id="apiUrl" type="string">https://your-domain.example/coin.php</property>
 ```
 
 **② 手机端改（仅从 Connect IQ 商店 / Beta App 安装的版本）**
@@ -188,6 +211,20 @@ Garmin Connect → 设备 → Connect IQ 应用 → TTCoin → 设置 → 「行
 > ⚠️ 用数据线把 `.prg` 拷进 `GARMIN\APPS` 的安装方式**不会**在 Garmin Connect 的「我的应用」里出现，所以看不到第 ② 种入口——这是 Garmin 的设计（设置界面由账号里的商店应用驱动），不是应用本身的问题。要在手机上改，把应用上传成 **Beta App** 即可（`manifest.xml` 换一个 UUID 的 app id，Connect IQ 后台勾选 Beta 上传，本账号内可下载，设置页随即出现）。
 
 地址校验统一在客户端做：不是 `https://` 开头、或长度不足，一律回退到编译期默认值 `DEFAULT_API`（`makeWebRequest` 在多数设备上只接受 HTTPS）。
+
+### 2.5 行情配置 ID（自动生成，可选手动覆盖）
+
+设置里还有一项「行情配置 ID」（`properties.xml` 的 `faceId`，限字母数字、
+最长 32）。**留空时客户端自动生成设备 ID**：`TC` +
+`System.getDeviceSettings().uniqueIdentifier`（限长 32，同设备恒定、卸载
+重装不变），随请求带 `?id=`，不用再手动抄 ID。服务端按 `TTCOIN_FACE_IDS`
+里登记的覆盖默认行情（滚屏 / 固定 / 顺序 / 条数 / **主币种**，写哪个覆盖
+哪个），没登记的 id 走默认一套（默认币种）。想查自己设备的 id：看服务端
+响应头 `X-TTCoin-Face-Id`，或服务端访问日志里的 `?id=`。手动填了非空 id
+则优先用手动的——**表盘（TTCoin_WF）/ 本 APP / Widget 三个客户端逻辑
+一致**：同设备的自动 id 相同语义，登记后三端看到同一套行情，各 id 的币种
+也可以不一致。配置格式见 [`../TTCoin_API/README.md`](https://github.com/hh1949tt/TTCoin_API/blob/main/README.md)
+的「按 ID 覆盖」一节。
 
 ### 3. 编译
 
@@ -209,7 +246,7 @@ monkeydo bin/TTCoin.prg instinct2x
 
 ## 服务端（TTCoin_API）
 
-服务端代码已独立到同级目录 **`https://github.com/hh1949tt/TTCoin_API`**（原 `api/` 目录），与表端解耦，三个形态共用同一份：
+服务端代码已独立到同级目录 **`TTCoin_API`**（原 `api/` 目录），与表端解耦，三个形态共用同一份：
 
 | 文件 | 职责 |
 | --- | --- |
@@ -217,7 +254,7 @@ monkeydo bin/TTCoin.prg instinct2x
 | `update_price.php` | cron 预热脚本 |
 | `lib.php` | 抓取 / 校验 / 缓存 / 请求日志（共用依赖） |
 
-手表调用的接口约定（`?uid=` / `?type=` 参数、请求日志格式、小数位规则、502 降级行为）全部移至 [TTCoin_API 的 README](https://github.com/hh1949tt/TTCoin_API#readme)，请到那边查阅。后端部署（上传、缓存/日志目录、cron 预热、安全建议）也在同一份文档里。
+手表调用的接口约定（`?uid=` / `?type=` 参数、请求日志格式、小数位规则、502 降级行为）全部移至 [`../TTCoin_API/README.md`](https://github.com/hh1949tt/TTCoin_API/blob/main/README.md)，请到那边查阅。后端部署（上传、缓存/日志目录、cron 预热、安全建议）也在同一份文档里。
 
 ## 自定义配置
 
@@ -344,7 +381,7 @@ App 在**每次启动时**（`onShow`）都会请求一次，之后定时器每�
 
 两个项目的 `manifest.xml` 用了同一个 `iq:application@id`。Connect IQ 按 id 认应用，同一块表上同一 id 只能有一条记录，后装的会顶掉先装的（连 `type` 一起改），所以装完 Widget 后 App 列表里就找不到本应用了。
 
-两边 id 现已分开：本项目 `1d087cf1-27ae-4c64-a653-42e113497d07`（`watch-app`，应用列表里叫 **TTCoin**），`TTCoin_Widget` 用 `e8dab0f9-d9a8-4ef5-8bab-fd05bcf135f5`（`widget`，小工具列表里叫 **TTCoin Widget**）。踩过坑的表先删掉旧条目再分别安装。细节见 [TTCoin_Widget 的文档](https://github.com/hh1949tt/TTCoin_Widget/blob/main/docs/CODE_REVIEW.md) 第十一节。
+两边 id 现已分开：本项目 `1d087cf1-27ae-4c64-a653-42e113497d07`（`watch-app`，应用列表里叫 **TTCoin**），`TTCoin_Widget` 用 `e8dab0f9-d9a8-4ef5-8bab-fd05bcf135f5`（`widget`，小工具列表里叫 **TTCoin Widget**）。踩过坑的表先删掉旧条目再分别安装。细节见 [`../TTCoin_Widget/docs/CODE_REVIEW.md`](https://github.com/hh1949tt/TTCoin_Widget/blob/main/docs/CODE_REVIEW.md) 第十一节。
 
 **Q: VS Code 报 `Workspace not found.` / `Connect IQ project not found.`**
 
@@ -395,14 +432,14 @@ The watch never talks to Binance directly — it calls a small PHP relay (`coin.
 **Quick start**
 
 ```bash
-git clone https://github.com/<your-name>/TTCoin.git
+git clone https://github.com/hh1949tt/TTCoin_APP.git
 # 1. set your own HTTPS endpoint in resources/properties.xml (apiUrl), or later in Garmin Connect app settings
 # 2. build & install
 monkeyc -f monkey.jungle -d instinct2x -o bin/TTCoin.prg -y /path/to/developer_key.der
 monkeydo bin/TTCoin.prg instinct2x
 ```
 
-**Backend**: the PHP relay lives in the sibling `TTCoin_API` directory — upload its files (`coin.php`, `update_price.php`, `lib.php`, `.htaccess`) to any PHP 7.4+ host with `curl` enabled and HTTPS. See `TTCoin_API/README.md`. Verify with `curl -s https://your-domain.com/coin.php`.
+**Backend**: the PHP relay lives in the sibling `TTCoin_API` directory — upload its files (`coin.php`, `update_price.php`, `lib.php`, `.htaccess`) to any PHP 7.4+ host with `curl` enabled and HTTPS. See `TTCoin_API/README.md`. Verify with `curl -s https://your-domain.example/coin.php`.
 
 **API contract**: `GET /coin.php` → `[{"symbol":"BTC","base":"BTC","price":"75701.02","change":"2.3"}, ...]` for all candidate pairs. `price` / `change` are **strings** following the upstream's actual decimal places (rounded to 4 only when longer), so the app just prints them. Tiny prices are scaled up server-side and carry the factor in the display name (`"symbol":"1000*SHIB"`), while `base` keeps the original short name — the coin menu and the local cache match on `base`, never on `symbol`. HTTP 502 on total failure. See the API contract section in `TTCoin_API/README.md`.
 

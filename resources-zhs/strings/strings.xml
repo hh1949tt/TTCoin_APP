@@ -7,6 +7,7 @@
 
     <string id="AppName">TTCoin</string>
     <string id="ApiUrlInvalid">必须是 https:// 开头的完整接口地址</string>
+    <string id="FaceIdInvalid">只能填字母和数字，最长 32 个字符</string>
 
     <string id="MenuCoins">选择币种</string>
     <string id="MenuCoinsDesc">设置显示哪些交易对</string>

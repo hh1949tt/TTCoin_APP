@@ -10,6 +10,13 @@
             maxLength="200"
             errorMessage="@Strings.ApiUrlInvalid"/>
     </setting>
+    <!-- 行情配置 ID：与服务端 TTCOIN_FACE_IDS 配合，见 properties.xml 注释 -->
+    <setting title="行情配置 ID（留空自动生成）" propertyKey="@Properties.faceId">
+        <settingConfig
+            type="alphaNumeric"
+            maxLength="32"
+            errorMessage="@Strings.FaceIdInvalid"/>
+    </setting>
     <setting title="显示 BTC" propertyKey="@Properties.enabledBTC">
         <settingConfig type="boolean"/>
     </setting>
